@@ -43,9 +43,19 @@ def create_and_evaluate_model(args, n_lgbm_iter=100):
         X_test = X_all[~train_idxs]
         y_test = y_all[~train_idxs]
         
+        """
+        lgbm = lgb.LGBMClassifier(objective='binary',
+                                 num_leaves=int(args['num_leaves']),
+                                 learning_rate=args['learning_rate'],
+                                 max_depth=int(args['max_depth']),
+                                 n_estimators=int(args['n_estimators']),
+                                 subsample=args['subsample'],
+                                 colsample_bytree=args['colsample_bytree'])
+        lgbm.fit(X_train, y_train)
+        """
+        
         train_data = lgb.Dataset(X_train, label=y_train)
         lgbm = lgb.train(param, train_data, n_lgbm_iter)
-
         preds = lgbm.predict(X_test)
 
         score += roc_auc_score(y_test, preds)
@@ -100,6 +110,15 @@ case_ids = dt_prefixes.groupby(dataset_manager.case_id_col).first()["orig_case_i
 dt_for_splitting = pd.DataFrame({dataset_manager.case_id_col: case_ids, dataset_manager.label_col: y_all}).drop_duplicates()
 
 print('Optimizing parameters...')
+"""
+space = {'num_leaves': hp.choice('num_leaves', np.arange(2, 300, dtype=int)),
+         'max_depth': hp.choice('max_depth', np.arange(1, 15, dtype=int)),
+         'learning_rate': hp.loguniform('learning_rate', np.log(0.00001), np.log(0.1)),
+         'subsample': hp.uniform("subsample", 0.5, 1),
+         'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
+         'colsample_bytree': hp.uniform("colsample_bytree", 0.5, 1)}
+"""
+
 space = {'num_leaves': hp.choice('num_leaves', np.arange(2, 300, dtype=int)),
          'max_depth': hp.choice('max_depth', np.arange(1, 15, dtype=int)),
          'learning_rate': hp.loguniform('learning_rate', np.log(0.00001), np.log(0.1)),
