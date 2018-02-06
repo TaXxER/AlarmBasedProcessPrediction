@@ -97,11 +97,11 @@ gbm = create_model(best_params, calibrate=calibrate)
 
 # get predictions for test set
 if calibrate:
-    preds = gbm.predict_proba(X_test)
+    preds = gbm.predict_proba(X_test)[:,1]
 else:
     preds = lgbm.predict(X_test)
 
-dt_preds = pd.DataFrame({"predicted_proba": preds[:,1], "actual": y_test,
+dt_preds = pd.DataFrame({"predicted_proba": preds, "actual": y_test,
                          "prefix_nr": dt_test_prefixes.groupby(dataset_manager.case_id_col).first()["prefix_nr"],
                          "case_id": dt_test_prefixes.groupby(dataset_manager.case_id_col).first()["orig_case_id"]})
 
