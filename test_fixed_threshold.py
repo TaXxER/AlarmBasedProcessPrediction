@@ -66,7 +66,7 @@ with open(out_filename, 'w') as fout:
     writer.writerow([dataset_name, method, "rec", rec, None, None, None])
     writer.writerow([dataset_name, method, "fscore", fscore, None, None, None])
     writer.writerow([dataset_name, method, "earliness_mean", earliness.mean(), None, None, None])
-    writer.writerow([dataset_name, method, "earliness_std", earliness.mean(), None, None, None])
+    writer.writerow([dataset_name, method, "earliness_std", earliness.std(), None, None, None])
 
     # evaluate the cost based on different misclassification costs and earliness rewards
     cost_weights = [(1,1,-5), (5,1,-1), (1,5,-1), (5,1,-5), (1,5,-5), (5,5,-1), (1,1,-1)]
