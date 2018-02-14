@@ -23,7 +23,7 @@ predictions_dir = argv[2]
 predictions_dir_regression = argv[3]
 conf_threshold_dir = argv[4]
 results_dir = argv[5]
-method = argv[6]
+alpha_variant = argv[6]
 cost_step = int(argv[7])
 
 
@@ -39,7 +39,7 @@ del dt_preds2
 
 
 # write results to file
-out_filename = os.path.join(results_dir, "results_%s_%s.csv" % (dataset_name, method))
+out_filename = os.path.join(results_dir, "results_%s_%s.csv" % (dataset_name, alpha_variant))
 with open(out_filename, 'w') as fout:
     writer = csv.writer(fout, delimiter=';', quotechar='', quoting=csv.QUOTE_NONE)
     writer.writerow(["dataset", "method", "metric", "value", "c01", "c10", "c11"])
@@ -52,8 +52,11 @@ with open(out_filename, 'w') as fout:
     for c01, c10, c11 in cost_weights:
         # load the optimal params
         args_file = os.path.join(conf_threshold_dir, "optimal_confs_%s_%s_%s_%s.pickle" % (dataset_name, c01, c10, c11))
-        with open(args_file, "rb") as fin:
-            args = pickle.load(fin)
+        try:
+            with open(args_file, "rb") as fin:
+                args = pickle.load(fin)
+        except:
+            continue
 
         costs = np.matrix([[lambda x: 0,
                             lambda x: c01/100.0],
@@ -120,11 +123,11 @@ with open(out_filename, 'w') as fout:
         tmp = dt_final[(dt_final.prediction == 1) & (dt_final.actual == 1)]
         earliness = (1 - (tmp.prefix_nr / tmp.case_length))
 
-        writer.writerow([dataset_name, method, "prec", prec, c01, c10, c11])
-        writer.writerow([dataset_name, method, "rec", rec, c01, c10, c11])
-        writer.writerow([dataset_name, method, "fscore", fscore, c01, c10, c11])
-        writer.writerow([dataset_name, method, "earliness_mean", earliness.mean(), c01, c10, c11])
-        writer.writerow([dataset_name, method, "earliness_std", earliness.std(), c01, c10, c11])
+        writer.writerow([dataset_name, alpha_variant, "prec", prec, c01, c10, c11])
+        writer.writerow([dataset_name, alpha_variant, "rec", rec, c01, c10, c11])
+        writer.writerow([dataset_name, alpha_variant, "fscore", fscore, c01, c10, c11])
+        writer.writerow([dataset_name, alpha_variant, "earliness_mean", earliness.mean(), c01, c10, c11])
+        writer.writerow([dataset_name, alpha_variant, "earliness_std", earliness.std(), c01, c10, c11])
 
         cost = dt_final.apply(calculate_cost, costs=costs, axis=1).sum()
-        writer.writerow([dataset_name, method, "cost", cost, c01, c10, c11])
+        writer.writerow([dataset_name, alpha_variant, "cost", cost, c01, c10, c11])

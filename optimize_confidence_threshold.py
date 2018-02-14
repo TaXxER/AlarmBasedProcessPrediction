@@ -135,13 +135,18 @@ for train_chunk, test_chunk in dataset_manager.get_stratified_split_generator(tr
 
 
 print('Optimizing parameters...')
-cost_weights = [(1,1,-5), (5,1,-1), (1,5,-1), (5,1,-5), (1,5,-5), (5,5,-1), (1,1,-1)]
+#cost_weights = [(1,1,-5), (5,1,-1), (1,5,-1), (5,1,-5), (1,5,-5), (5,5,-1), (1,1,-1)]
+cost_weights = []
+for c01 in range(0, 110, 10):
+    for c10 in range(0, 110-c01, 10):
+        c11 = 100 - c01 - c10
+        cost_weights.append((c01, c10, c11))
 for c01, c10, c11 in cost_weights:
     # cost matrix
     costs = np.matrix([[lambda x: 0,
-                        lambda x: c01],
-                       [lambda x: c10,
-                        lambda x: c11*(x['case_length'] - x['prefix_nr'])/x['case_length']]])
+                        lambda x: c01/100.0],
+                       [lambda x: c10/100.0,
+                        lambda x: -c11/100.0*(x['case_length'] - x['prefix_nr'])/x['case_length']]])
     
     space = {'conf_threshold': hp.uniform("conf_threshold", 0, 1)}
     trials = Trials()

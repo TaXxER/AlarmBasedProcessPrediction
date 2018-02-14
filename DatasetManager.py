@@ -112,7 +112,7 @@ class DatasetManager:
             tmp["prefix_nr"] = nr_events
             dt_prefixes = pd.concat([dt_prefixes, tmp], axis=0)
         
-        dt_prefixes['case_length'] = dt_prefixes.groupby(self.case_id_col)[self.activity_col].transform(len)
+        dt_prefixes['case_length'] = dt_prefixes['case_length'].apply(lambda x: min(max_length, x))
         
         return dt_prefixes
 

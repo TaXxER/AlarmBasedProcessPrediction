@@ -22,8 +22,9 @@ dataset_name = argv[1]
 predictions_dir = argv[2]
 conf_threshold_dir = argv[3]
 results_dir = argv[4]
+cost_step = int(argv[5])
 
-method = "optimizedconf"
+method = "baseline"
 
 # create results directory
 if not os.path.exists(os.path.join(results_dir)):
@@ -38,7 +39,12 @@ with open(out_filename, 'w') as fout:
     writer = csv.writer(fout, delimiter=';', quotechar='', quoting=csv.QUOTE_NONE)
     writer.writerow(["dataset", "method", "metric", "value", "c01", "c10", "c11"])
 
-    cost_weights = [(1,1,-5), (5,1,-1), (1,5,-1), (5,1,-5), (1,5,-5), (5,5,-1), (1,1,-1)]
+    #cost_weights = [(1,1,-5), (5,1,-1), (1,5,-1), (5,1,-5), (1,5,-5), (5,5,-1), (1,1,-1)]
+    cost_weights = []
+    for c01 in range(0, 100+cost_step, cost_step):
+        for c10 in range(0, 100+cost_step-c01, cost_step):
+            c11 = 100 - c01 - c10
+            cost_weights.append((c01, c10, c11))
     for c01, c10, c11 in cost_weights:
         # load the optimal confidence threshold
         conf_file = os.path.join(conf_threshold_dir, "optimal_confs_%s_%s_%s_%s.pickle" % (dataset_name, c01, c10, c11))
@@ -77,8 +83,8 @@ with open(out_filename, 'w') as fout:
 
         # calculate the cost
         costs = np.matrix([[lambda x: 0,
-                            lambda x: c01],
-                           [lambda x: c10,
-                            lambda x: c11*(x['case_length'] - x['prefix_nr'])/x['case_length']]])
+                            lambda x: c01/100.0],
+                           [lambda x: c10/100.0,
+                            lambda x: -c11/100.0*(x['case_length'] - x['prefix_nr'])/x['case_length']]])
         cost = dt_final.apply(calculate_cost, costs=costs, axis=1).sum()
         writer.writerow([dataset_name, method, "cost", cost, c01, c10, c11])
