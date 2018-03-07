@@ -13,26 +13,19 @@ import sys
 from sys import argv
 import pickle
 
-import lightgbm as lgb
+from sklearn.ensemble import RandomForestClassifier
 
 from hyperopt import Trials, STATUS_OK, tpe, fmin, hp
 import hyperopt
+from hyperopt.pyll.base import scope
+from hyperopt.pyll.stochastic import sample
 
 
-def create_and_evaluate_model(args, n_lgbm_iter=100):
+def create_and_evaluate_model(args):
     global trial_nr
     if trial_nr % 50 == 0:
         print(trial_nr)
     trial_nr += 1
-    
-    param = {'num_leaves': int(args['num_leaves']),
-             'max_depth': int(args['max_depth']),
-             'learning_rate': args['learning_rate'],
-             'max_bin': int(args['max_bin']),
-             'bagging_fraction': args['bagging_fraction']}
-    param['metric'] = ['auc', 'binary_logloss']
-    param['objective'] = 'binary'
-    param['verbosity'] = -1
     
     score = 0
     for current_train_names, current_test_names in dataset_manager.get_idx_split_generator(dt_for_splitting, n_splits=n_splits):
@@ -43,23 +36,16 @@ def create_and_evaluate_model(args, n_lgbm_iter=100):
         X_test = X_all[~train_idxs]
         y_test = y_all[~train_idxs]
         
-        """
-        lgbm = lgb.LGBMClassifier(objective='binary',
-                                 num_leaves=int(args['num_leaves']),
-                                 learning_rate=args['learning_rate'],
-                                 max_depth=int(args['max_depth']),
-                                 n_estimators=int(args['n_estimators']),
-                                 subsample=args['subsample'],
-                                 colsample_bytree=args['colsample_bytree'])
-        lgbm.fit(X_train, y_train)
-        """
+        cls = RandomForestClassifier(n_estimators=500, max_features=float(args['max_features']),
+                                     max_depth=args['max_depth'], random_state=22)
         
-        train_data = lgb.Dataset(X_train, label=y_train)
-        lgbm = lgb.train(param, train_data, n_lgbm_iter)
-        preds = lgbm.predict(X_test)
+        cls.fit(X_train, y_train)
+        preds_pos_label_idx = np.where(cls.classes_ == 1)[0][0]
+        
+        preds = cls.predict_proba(X_test)[:,preds_pos_label_idx]
 
         score += roc_auc_score(y_test, preds)
-    return {'loss': -score / n_splits, 'status': STATUS_OK, 'model': lgbm}
+    return {'loss': -score / n_splits, 'status': STATUS_OK, 'model': cls}
 
 
 print('Preparing data...')
@@ -112,26 +98,16 @@ case_ids = dt_prefixes.groupby(dataset_manager.case_id_col).first()["orig_case_i
 dt_for_splitting = pd.DataFrame({dataset_manager.case_id_col: case_ids, dataset_manager.label_col: y_all}).drop_duplicates()
 
 print('Optimizing parameters...')
-"""
-space = {'num_leaves': hp.choice('num_leaves', np.arange(2, 300, dtype=int)),
-         'max_depth': hp.choice('max_depth', np.arange(1, 15, dtype=int)),
-         'learning_rate': hp.loguniform('learning_rate', np.log(0.00001), np.log(0.1)),
-         'subsample': hp.uniform("subsample", 0.5, 1),
-         'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
-         'colsample_bytree': hp.uniform("colsample_bytree", 0.5, 1)}
-"""
 
-space = {'num_leaves': hp.choice('num_leaves', np.arange(2, 300, dtype=int)),
-         'max_depth': hp.choice('max_depth', np.arange(1, 15, dtype=int)),
-         'learning_rate': hp.loguniform('learning_rate', np.log(0.00001), np.log(0.1)),
-         'max_bin': hp.choice('max_bin', np.arange(2, 300, dtype=int)),
-         'bagging_fraction': hp.uniform("bagging_fraction", 0.001, 0.999)}
+space = {#'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=int)),
+         'max_depth': scope.int(hp.quniform('max_depth', 4, 30, 1)),
+         'max_features': hp.uniform('max_features', 0, 1)}
 trials = Trials()
-best = fmin(create_and_evaluate_model, space, algo=tpe.suggest, max_evals=200, trials=trials)
+best = fmin(create_and_evaluate_model, space, algo=tpe.suggest, max_evals=20, trials=trials)
 
 best_params = hyperopt.space_eval(space, best)
 
-outfile = os.path.join(params_dir, "optimal_params_lgbm_%s.pickle" % (dataset_name))
+outfile = os.path.join(params_dir, "optimal_params_rf_%s.pickle" % (dataset_name))
 # write to file
 with open(outfile, "wb") as fout:
     pickle.dump(best_params, fout)

@@ -13,7 +13,7 @@ dynamic_num_cols = {}
 static_num_cols = {}
 filename = {}
 
-logs_dir = "data"
+logs_dir = "/gpfs/hpchome/etais/hpc_irheta/predictive-monitoring-benchmark/labeled_logs_csv_processed"
 
 #### Traffic fines settings ####
 
@@ -198,5 +198,27 @@ for municipality in range(1,6):
                 static_num_cols[dataset].append('Brandveilig gebruik (melding)')
                 static_num_cols[dataset].append('Milieu (melding)')
                 
+
+
+#### BPIC2018 log settings ####
+dataset = "bpic2018"
+
+filename[dataset] = os.path.join(logs_dir, "BPI Challenge 2018_sample.csv")
+
+case_id_col[dataset] = "Case ID"
+activity_col[dataset] = "Activity"
+resource_col[dataset] = "Resource"
+timestamp_col[dataset] = "Complete Timestamp"
+label_col[dataset] = "label"
+neg_label[dataset] = "0"
+pos_label[dataset] = "1"
+
+# features for classifier
+static_cat_cols[dataset] = ["department", "basic payment", "greening", "redistribution", "small farmer", "young farmer"]
+static_num_cols[dataset] = ["area", "number_parcels"]
+dynamic_cat_cols[dataset] = ["Activity", "Resource", "success", "doctype", "subprocess", "activity"]
+dynamic_num_cols[dataset] = ["timesincelastevent", "timesincecasestart", "timesincemidnight", "event_nr", "month", "weekday", "hour"]
+
+    
 for k, v in dynamic_num_cols.items():
-    dynamic_num_cols[k] = [col for col in v if v != "open_cases"]
+    dynamic_num_cols[k] = [col for col in v if col != "open_cases"]
