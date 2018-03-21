@@ -7,14 +7,22 @@ The code provided in this repository implements the techniques for alarm-based p
  * The effect of different probabilistic classification algorithms on the performance of the alarm-based prescriptive process monitorring system.
 The code itself can be accessed through https://github.com/TaXxER/AlarmBasedProcessPrediction.
 
-The scripts trains a [Long Short Term Memory (LSTM)](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)-based predictive model using the data about historical, i.e. completed process instances. Next, the models are evaluated on running, i.e. incomplete instances.
+An alarm-based prescriptive process monitoring (short: alarm system) entails two components: 1) a classifier that outputs the likelihood of an undesired outcome for a given (partial) trace of a business process instance and 2) an alarming mechanism that decides whether to raise an alarm based on the classifier's output or not. 
+The scripts in this repository train either a [Random Forest (RF)](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) or a [Gradient Boosted Trees (GBT)](http://lightgbm.readthedocs.io/en/latest/Python-API.html) classifier using the data about historical, i.e. completed process instances. Then, as a particular instantiation of the alarming mechanism, an optimal alarming threshold is found using the Tree-structured Parzen Estimator (TPE) [(see)](https://github.com/hyperopt/hyperopt/wiki) optimization procedure.
+The alarm system is evaluated on running, i.e. incomplete instances over different cost models.
 
 **Requirements:**   
-Python 3. Additionally, the following Python libraries are required to run the code: _sklearn_,_hyperopt_, _numpy_.  
+Python 3. Additionally, the following Python libraries are required to run the code: _sklearn_,_hyperopt_, _numpy_, _lightgbm_.  
 
 **USAGE:**  
 **Data format**   
-The tool assumes the input is a complete log of all traces in the CSV format wherein the first column is a case ID, then activity name or ID and finally the activity timestamp. Then, this input log is temporally split in 64% of the data for training the classifier, 16% of the data to optimize the alarming strategy, and 20% for evaluation. On the evaluation set the tool evaluates the obtained reduction in the cost of processing a trace using the alarming system, given a particular cost model. We provide sample datasets, including those used in the paper, in the _data_ folder.
+The tool assumes the input is a complete log of all traces in the CSV format, each row representing one event in a trace, wherein each event is associated with at least the following attributes (as columns in the CSV file): the case id, activity type, timestamp, class label. As additional columns, any number of event and case attributes is accepted that are used to enhance the predicitve power of the classifier. The relevant columns should be specified in the script `python dataset_confs.py`.
+
+Then, this input log is temporally split in 64% of the data for training the classifier, 16% of the data to optimize the alarming strategy, and 20% for evaluation. On the evaluation set the tool evaluates the obtained reduction in the cost of processing a trace using the alarming system, given a particular cost model. 
+
+<!---
+We provide sample datasets, including those used in the paper, in the _data_ folder.
+
 
 **Model training:**   
 `python train.py`    
@@ -29,7 +37,7 @@ This script predicts the continuation of a partial trace, i.e. its suffix, until
 
 `python calculate_accuracy_on_next_event.py`.
 This script evaluates the performance of the next event prediction (not the whole suffix). It takes the output of `evaluate_suffix_and_remaining_time.py` as input, therefore, the latter needs to be executed first
-
+--->
 **Reference:**
 If you use the code from this repository, please cite the original paper:
 ```
