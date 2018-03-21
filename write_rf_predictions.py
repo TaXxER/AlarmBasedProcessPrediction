@@ -1,17 +1,13 @@
 import EncoderFactory
 from DatasetManager import DatasetManager
-from calibration_wrappers import LGBMCalibrationWrapper
 
 import pandas as pd
 import numpy as np
 
 from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import FeatureUnion
-#from sklearn.calibration import CalibratedClassifierCV
-from calibration import CalibratedClassifierCV
-from imblearn.over_sampling import RandomOverSampler 
 
-from sklearn.metrics import brier_score_loss
+from sklearn.ensemble import RandomForestClassifier
 
 import time
 import os
@@ -19,38 +15,20 @@ import sys
 from sys import argv
 import pickle
 
-import lightgbm as lgb
 
-
-def create_model(param, n_lgbm_iter=100, calibrate=False):
+def create_model(args):
     
-    param['metric'] = ['auc', 'binary_logloss']
-    param['objective'] = 'binary'
-    param['verbosity'] = -1
+    cls = RandomForestClassifier(n_estimators=500, max_features=float(args['max_features']),
+                                     max_depth=args['max_depth'], random_state=22)
     
-    if oversample:
-        train_data = lgb.Dataset(X_train_ros, label=y_train_ros)
-    else:
-        train_data = lgb.Dataset(X_train, label=y_train)
-    lgbm = lgb.train(param, train_data, n_lgbm_iter)
-    
-    if calibrate:
-        wrapper = LGBMCalibrationWrapper(lgbm)
-        cls = CalibratedClassifierCV(wrapper, cv="prefit", method=calibration_method)
-        cls.fit(X_val, y_val)
-        return (cls, lgbm)
-    else:
-        return lgbm
+    cls.fit(X_train, y_train)
+    return cls
 
 
 dataset_name = argv[1]
 optimal_params_filename = argv[2]
 results_dir = argv[3]
-calibrate = False
 split_type = "temporal"
-
-oversample = False
-calibration_method = "beta"
 
 train_ratio = 0.8
 val_ratio = 0.2
@@ -77,7 +55,6 @@ min_prefix_length = 1
 #    max_prefix_length = min(40, dataset_manager.get_pos_case_length_quantile(data, 0.95))
 
 max_prefix_length = int(np.ceil(data.groupby(dataset_manager.case_id_col).size().quantile(0.9)))
-
     
 cls_encoder_args = {'case_id_col': dataset_manager.case_id_col, 
                     'static_cat_cols': dataset_manager.static_cat_cols,
@@ -108,37 +85,16 @@ y_test = dataset_manager.get_label_numeric(dt_test_prefixes)
 X_val = feature_combiner.fit_transform(dt_val_prefixes)
 y_val = dataset_manager.get_label_numeric(dt_val_prefixes)
 
-if oversample:
-    ros = RandomOverSampler(random_state=42)
-    X_train_ros, y_train_ros = ros.fit_sample(X_train, y_train)
-
-
 # train the model with pre-tuned parameters
 with open(optimal_params_filename, "rb") as fin:
     best_params = pickle.load(fin)
 
 # get predictions for test set
-if calibrate:
-    gbm, gbm_uncalibrated = create_model(best_params, calibrate=calibrate)
-
-    preds_train = gbm.predict_proba(X_train)[:,1]
-    preds_val = gbm.predict_proba(X_val)[:,1]
-    preds = gbm.predict_proba(X_test)[:,1]
-    
-    preds_train_not_cal = gbm_uncalibrated.predict(X_train)
-    preds_val_not_cal = gbm_uncalibrated.predict(X_val)
-    preds_not_cal = gbm_uncalibrated.predict(X_test)
-    
-    print("Brier scores:")
-    print("train calibrated: %s, train not calibrated: %s" % (brier_score_loss(y_train, preds_train), brier_score_loss(y_train, preds_train_not_cal)))
-    print("val calibrated: %s, val not calibrated: %s" % (brier_score_loss(y_val, preds_val), brier_score_loss(y_val, preds_val_not_cal)))
-    print("test calibrated: %s, test not calibrated: %s" % (brier_score_loss(y_test, preds), brier_score_loss(y_test, preds_not_cal)))
-
-else:
-    lgbm = create_model(best_params, calibrate=calibrate)
-    preds_train = lgbm.predict(X_train)
-    preds_val = lgbm.predict(X_val)
-    preds = lgbm.predict(X_test)
+cls = create_model(best_params)
+preds_pos_label_idx = np.where(cls.classes_ == 1)[0][0]
+preds_train = cls.predict_proba(X_train)[:,preds_pos_label_idx]
+preds_val = cls.predict_proba(X_val)[:,preds_pos_label_idx]
+preds = cls.predict_proba(X_test)[:,preds_pos_label_idx]
 
     
 # write train-val set predictions

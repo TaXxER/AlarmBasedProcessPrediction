@@ -70,7 +70,7 @@ data = dataset_manager.read_dataset()
 min_prefix_length = 1
 if "bpic2017" in dataset_name:
     max_prefix_length = min(20, dataset_manager.get_pos_case_length_quantile(data, 0.95))
-elif dataset_name == "uwv" or dataset_name == "bpic2018":
+elif "uwv" in dataset_name or "bpic2018" in dataset_name:
     max_prefix_length = dataset_manager.get_pos_case_length_quantile(data, 0.9)
 else:
     max_prefix_length = min(40, dataset_manager.get_pos_case_length_quantile(data, 0.95))
@@ -103,7 +103,7 @@ space = {#'n_estimators': hp.choice('n_estimators', np.arange(150, 1000, dtype=i
          'max_depth': scope.int(hp.quniform('max_depth', 4, 30, 1)),
          'max_features': hp.uniform('max_features', 0, 1)}
 trials = Trials()
-best = fmin(create_and_evaluate_model, space, algo=tpe.suggest, max_evals=20, trials=trials)
+best = fmin(create_and_evaluate_model, space, algo=tpe.suggest, max_evals=10, trials=trials)
 
 best_params = hyperopt.space_eval(space, best)
 

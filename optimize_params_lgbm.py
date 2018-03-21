@@ -84,7 +84,7 @@ data = dataset_manager.read_dataset()
 min_prefix_length = 1
 if "bpic2017" in dataset_name:
     max_prefix_length = min(20, dataset_manager.get_pos_case_length_quantile(data, 0.95))
-elif dataset_name == "uwv" or dataset_name == "bpic2018":
+elif "uwv" in dataset_name or "bpic2018" in dataset_name:
     max_prefix_length = dataset_manager.get_pos_case_length_quantile(data, 0.9)
 else:
     max_prefix_length = min(40, dataset_manager.get_pos_case_length_quantile(data, 0.95))
