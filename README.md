@@ -115,23 +115,54 @@ Here we present the results of the evaluation that were not included in the pape
 
 ![results](images/results_ratios_rf.png)
 
-**Cost over different thresholds (Gradient Boosted Trees)**
+**Cost over different thresholds (Gradient Boosted Trees):**
 
 ![results](images/results_thresholds_lgbm.png)
 
-**Cost over different thresholds (Random forest)**
+**Cost over different thresholds (Random forest):**
 
 ![results](images/results_thresholds_rf.png)
 
-**Earliness and F-score over different ratios of the _cost of the undesired outcome_ and the _cost of the intervention_ (Gradient Boosted Trees)**
+**Earliness and F-score over different ratios of the _cost of the undesired outcome_ and the _cost of the intervention_ (Gradient Boosted Trees):**
 
 ![results](images/results_earliness_fscore_lgbm.png)
 
-**Earliness and F-score over different ratios of the _cost of the undesired outcome_ and the _cost of the intervention_ (Random forest)**
+**Earliness and F-score over different ratios of the _cost of the undesired outcome_ and the _cost of the intervention_ (Random forest):**
 
 ![results](images/results_earliness_fscore_rf.png)
 
+**Cost over different _mitigation effectiveness_ values (constant over time) and ratios of the _cost of the undesired outcome_ and the _cost of the intervention_ (Gradient Boosted Trees):**
 
+![results](images/results_effectiveness_const_lgbm.png)
 
+**Cost over different _mitigation effectiveness_ values (constant over time) and ratios of the _cost of the undesired outcome_ and the _cost of the intervention_ (Random forest):**
 
+![results](images/results_effectiveness_const_rf.png)
 
+**Cost over different _mitigation effectiveness_ values (linear decay) and ratios of the _cost of the undesired outcome_ and the _cost of the intervention_ (Gradient Boosted Trees):**
+
+![results](images/results_effectiveness_linear_lgbm.png)
+
+**Cost over different _mitigation effectiveness_ values (linear decay) and ratios of the _cost of the undesired outcome_ and the _cost of the intervention_ (Random forest):**
+
+![results](images/results_effectiveness_linear_rf.png)
+
+**Cost over different ratios of 1) the _cost of the undesired outcome_ and the _cost of the intervention_ and 2) the _cost of the intervention_ and the _cost of compensation_, _cost of the intervention_ is constant over time (Gradient Boosted Trees):**
+
+![results](images/results_compensation_const_lgbm.png)
+
+**Cost over different ratios of 1) the _cost of the undesired outcome_ and the _cost of the intervention_ and 2) the _cost of the intervention_ and the _cost of compensation_, _cost of the intervention_ is constant over time (Random forest):**
+
+![results](images/results_compensation_const_rf.png)
+
+**Cost over different ratios of 1) the _cost of the undesired outcome_ and the _cost of the intervention_ and 2) the _cost of the intervention_ and the _cost of compensation_, _cost of the intervention_ is increasing linearly (Gradient Boosted Trees):**
+
+![results](images/results_compensation_linear_lgbm.png)
+
+**Cost over different ratios of 1) the _cost of the undesired outcome_ and the _cost of the intervention_ and 2) the _cost of the intervention_ and the _cost of compensation_, _cost of the intervention_ is increasing linearly (Random forest):**
+
+![results](images/results_compensation_linear_rf.png)
+
+**Reliability plot (bpic2017_refused, Gradient Boosted Trees). The proportion of actual positive samples in the dataset is plotted against the proportion of samples assigned a likelihood score in a given range, each subfigure corresponds to a given prefix length. A perfectly calibrated classifier (i.e. the scores assigned correspond to probabilities) would output scores in the diagonal line. We observe that calibration using Platt Scaling (pink lines) does not improve the predicted probabilities as compared to the original scores (blue lines):**
+
+![results](images/reliability_bpic2017_refused.png)
