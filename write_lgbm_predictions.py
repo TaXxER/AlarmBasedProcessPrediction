@@ -7,7 +7,6 @@ import numpy as np
 
 from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import FeatureUnion
-#from sklearn.calibration import CalibratedClassifierCV
 from calibration import CalibratedClassifierCV
 from imblearn.over_sampling import RandomOverSampler 
 
@@ -46,9 +45,9 @@ def create_model(param, n_lgbm_iter=100, calibrate=False):
 dataset_name = argv[1]
 optimal_params_filename = argv[2]
 results_dir = argv[3]
+
 calibrate = False
 split_type = "temporal"
-
 oversample = False
 calibration_method = "beta"
 
@@ -67,15 +66,6 @@ dataset_manager = DatasetManager(dataset_name)
 data = dataset_manager.read_dataset()
 
 min_prefix_length = 1
-#if "bpic2017" in dataset_name:
-#    max_prefix_length = min(20, dataset_manager.get_pos_case_length_quantile(data, 0.95))
-#elif "uwv" in dataset_name or "bpic2018" in dataset_name:
-#    max_prefix_length = dataset_manager.get_pos_case_length_quantile(data, 0.9)
-#elif "traffic" in dataset_name:
-#    max_prefix_length = 10
-#else:
-#    max_prefix_length = min(40, dataset_manager.get_pos_case_length_quantile(data, 0.95))
-
 max_prefix_length = int(np.ceil(data.groupby(dataset_manager.case_id_col).size().quantile(0.9)))
 
     

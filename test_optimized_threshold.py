@@ -22,7 +22,6 @@ dataset_name = argv[1]
 predictions_dir = argv[2]
 conf_threshold_dir = argv[3]
 results_dir = argv[4]
-#cost_step = int(argv[5])
 
 method = "opt_threshold"
 

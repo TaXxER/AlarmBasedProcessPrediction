@@ -43,10 +43,6 @@ def evaluate_model_cost(args):
         
     cost = dt_final.apply(calculate_cost, costs=costs, axis=1).sum()
     
-    #global trial_results
-    #trial_results.append([len(trial_results)+1, cost, conf_threshold, dataset_name, c_miss_weight, c_action_weight,
-    #                               c_postpone_weight])
-    
     return {'loss': cost, 'status': STATUS_OK, 'model': dt_final}
 
 
@@ -56,53 +52,39 @@ start = time.time()
 dataset_name = argv[1]
 preds_dir = argv[2]
 params_dir = argv[3]
-results_dir = argv[4]
-#cost_step = int(argv[5])
-optimize_on_data = argv[5]
-#earliness_type = argv[6]
 
-# create results directory
+# create output directory
 if not os.path.exists(os.path.join(params_dir)):
     os.makedirs(os.path.join(params_dir))
-    
-# create results directory
-if not os.path.exists(os.path.join(results_dir)):
-    os.makedirs(os.path.join(results_dir))
     
 # read the data
 dataset_manager = DatasetManager(dataset_name)
     
 # prepare the dataset
 dt_preds = pd.read_csv(os.path.join(preds_dir, "preds_val_%s.csv" % dataset_name), sep=";")
-if optimize_on_data != "val":
-    dt_preds_train = pd.read_csv(os.path.join(preds_dir, "preds_train_%s.csv" % dataset_name), sep=";")
-    dt_preds = pd.concat([dt_preds_train, dt_preds], axis=0)
 
-trial_results = []
-    
+c_postpone_weight = 0
 print('Optimizing parameters...')
 cost_weights = [(1,1), (2,1), (3,1), (5,1), (10,1), (20,1), (40, 1)]
-c_com_weights = [1/40.0, 1/20.0, 1/10.0, 1/5.0, 1/3.0, 1/2.0, 1, 2, 3, 5, 10, 20, 40, 0]
-c_postpone_weight = 0
+effectivenesses = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 for c_miss_weight, c_action_weight in cost_weights:
-    for c_com_weight in c_com_weights:
+    for eff in effectivenesses:
         for early_type in ["const", "linear"]:
     
-            c_miss = c_miss_weight / (c_miss_weight + c_action_weight + c_com_weight)
-            c_action = c_action_weight / (c_miss_weight + c_action_weight + c_com_weight)
-            c_com = c_com_weight / (c_miss_weight + c_action_weight + c_com_weight)
+            c_miss = c_miss_weight / (c_miss_weight + c_action_weight)
+            c_action = c_action_weight / (c_miss_weight + c_action_weight)
 
             if early_type == "linear":
                 costs = np.matrix([[lambda x: 0,
                                       lambda x: c_miss],
-                                     [lambda x: c_action * (x['prefix_nr']-1) / x['case_length'] + c_com,
-                                      lambda x: c_action * (x['prefix_nr']-1) / x['case_length'] + (x['prefix_nr']-1) / x['case_length'] * c_miss
+                                     [lambda x: c_action,
+                                      lambda x: c_action + (1 - eff * (1 - (x['prefix_nr']-1) / x['case_length'])) * c_miss
                                      ]])
             else:
                 costs = np.matrix([[lambda x: 0,
                                       lambda x: c_miss],
-                                     [lambda x: c_action + c_com,
-                                      lambda x: c_action + (x['prefix_nr']-1) / x['case_length'] * c_miss
+                                     [lambda x: c_action,
+                                      lambda x: c_action + c_miss * (1-eff)
                                      ]])
 
             space = {'conf_threshold': hp.uniform("conf_threshold", 0, 1)}
@@ -111,18 +93,7 @@ for c_miss_weight, c_action_weight in cost_weights:
 
             best_params = hyperopt.space_eval(space, best)
 
-            outfile = os.path.join(params_dir, "optimal_confs_%s_%s_%s_%s_%s_%s.pickle" % (dataset_name, c_miss_weight, c_action_weight, c_postpone_weight, c_com_weight, early_type))
+            outfile = os.path.join(params_dir, "optimal_confs_%s_%s_%s_%s_%s_%s.pickle" % (dataset_name, c_miss_weight, c_action_weight, c_postpone_weight, eff, early_type))
             # write to file
             with open(outfile, "wb") as fout:
                 pickle.dump(best_params, fout)
-
-"""
-# write results to file
-out_filename = os.path.join(results_dir, "optim_results_opt_threshold_%s.csv" % (dataset_name))
-with open(out_filename, 'w') as fout:
-    writer = csv.writer(fout, delimiter=';', quotechar='', quoting=csv.QUOTE_NONE)
-    writer.writerow(["iteration", "cost", "conf_threshold", "dataset_name", "c_miss_weight", "c_action_weight",
-                                   "c_postpone_weight"])
-    for row in trial_results:
-        writer.writerow(row)
-"""

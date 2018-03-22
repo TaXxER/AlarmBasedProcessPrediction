@@ -43,10 +43,6 @@ def evaluate_model_cost(args):
         
     cost = dt_final.apply(calculate_cost, costs=costs, axis=1).sum()
     
-    global trial_results
-    trial_results.append([len(trial_results)+1, cost, conf_threshold, dataset_name, c_miss_weight, c_action_weight,
-                                   c_postpone_weight])
-    
     return {'loss': cost, 'status': STATUS_OK, 'model': dt_final}
 
 
@@ -56,30 +52,17 @@ start = time.time()
 dataset_name = argv[1]
 preds_dir = argv[2]
 params_dir = argv[3]
-results_dir = argv[4]
-#cost_step = int(argv[5])
-optimize_on_data = argv[5]
-#earliness_type = argv[6]
 
-# create results directory
+# create output directory
 if not os.path.exists(os.path.join(params_dir)):
     os.makedirs(os.path.join(params_dir))
-    
-# create results directory
-if not os.path.exists(os.path.join(results_dir)):
-    os.makedirs(os.path.join(results_dir))
     
 # read the data
 dataset_manager = DatasetManager(dataset_name)
     
 # prepare the dataset
 dt_preds = pd.read_csv(os.path.join(preds_dir, "preds_val_%s.csv" % dataset_name), sep=";")
-if optimize_on_data != "val":
-    dt_preds_train = pd.read_csv(os.path.join(preds_dir, "preds_train_%s.csv" % dataset_name), sep=";")
-    dt_preds = pd.concat([dt_preds_train, dt_preds], axis=0)
 
-trial_results = []
-    
 print('Optimizing parameters...')
 cost_weights = [(1,1), (2,1), (3,1), (5,1), (10,1), (20,1)]
 c_postpone_weight = 0
@@ -105,12 +88,3 @@ for c_miss_weight, c_action_weight in cost_weights:
     # write to file
     with open(outfile, "wb") as fout:
         pickle.dump(best_params, fout)
-
-# write results to file
-out_filename = os.path.join(results_dir, "optim_results_opt_threshold_%s.csv" % (dataset_name))
-with open(out_filename, 'w') as fout:
-    writer = csv.writer(fout, delimiter=';', quotechar='', quoting=csv.QUOTE_NONE)
-    writer.writerow(["iteration", "cost", "conf_threshold", "dataset_name", "c_miss_weight", "c_action_weight",
-                                   "c_postpone_weight"])
-    for row in trial_results:
-        writer.writerow(row)
