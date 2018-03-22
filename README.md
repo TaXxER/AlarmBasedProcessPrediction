@@ -11,7 +11,7 @@ An alarm-based prescriptive process monitoring (short: alarm system) entails two
 The scripts in this repository train either a [Random Forest (RF)](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) or a [Gradient Boosted Trees (GBT)](http://lightgbm.readthedocs.io/en/latest/Python-API.html) classifier using the data about historical, i.e. completed process instances. Then, as a particular instantiation of the alarming mechanism, an optimal alarming threshold is found using the Tree-structured Parzen Estimator (TPE) [(see)](https://github.com/hyperopt/hyperopt/wiki) optimization procedure.
 The alarm system is evaluated on running, i.e. incomplete instances over different cost models.
 
-##Reference
+## Reference
 If you use the code from this repository, please cite the original paper:
 ```
 @article{Teinemaa2018,
@@ -22,7 +22,7 @@ If you use the code from this repository, please cite the original paper:
 }
 ```
 
-##Requirements   
+## Requirements   
 The code is written in Python 3.6. Although not tested, it should work with any version of Python 3. Additionally, the following Python libraries are required to run the code: 
 
 * sklearn
@@ -31,13 +31,13 @@ The code is written in Python 3.6. Although not tested, it should work with any 
 * lightgbm
 * hyperopt
 
-##Usage
-####Data format
+## Usage
+#### Data format
 The tool assumes the input is a complete log of all traces in the CSV format, each row representing one event in a trace, wherein each event is associated with at least the following attributes (as columns in the CSV file): the case id, activity type, timestamp, class label. As additional columns, any number of event and case attributes is accepted that are used to enhance the predicitve power of the classifier. The relevant columns should be specified in the script `dataset_confs.py`.
 
 The input log is temporally split into data for building (80% of cases) and evaluating (20% of cases) the alarm system. The data for building the alarm system is further split (via random sampling) into a dataset for training the classifier (64% of all cases in the event log) and a dataset for optimizing the alarming threshold (16% of all cases in the event log). On the evaluation set the tool evaluates the obtained cost/benefit of processing a trace using the alarm system, given a particular cost model. 
 
-####Building the alarm system
+#### Building the alarm system
 The alarm system can be tuned and built by following these 3 steps:
 
 **1. Optimizing the classifier's hyperparameters.**
@@ -76,7 +76,7 @@ The arguments to the scripts are:
 * _predictions_dir_ - the name of the directory where the final predictions have been written (from step 2)
 * _output_dir_ - the name of the directory where the optimal alarming thresholds will be written.
 
-####Evaluation
+#### Evaluation
 **1. Testing the optimized threshold.**
 
 `python test_optimized_thresholds.py <dataset_name> <predictions_dir> <optimal_thresholds_dir> <output_dir>`
@@ -130,6 +130,8 @@ Here we present the results of the evaluation that were not included in the pape
 **Earliness and F-score over different ratios of the _cost of the undesired outcome_ and the _cost of the intervention_ (Random forest)**
 
 ![results](images/results_earliness_fscore_rf.png)
+
+
 
 
 
