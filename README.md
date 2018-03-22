@@ -11,6 +11,7 @@ An alarm-based prescriptive process monitoring (short: alarm system) entails two
 The scripts in this repository train either a [Random Forest (RF)](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) or a [Gradient Boosted Trees (GBT)](http://lightgbm.readthedocs.io/en/latest/Python-API.html) classifier using the data about historical, i.e. completed process instances. Then, as a particular instantiation of the alarming mechanism, an optimal alarming threshold is found using the Tree-structured Parzen Estimator (TPE) [(link)](https://github.com/hyperopt/hyperopt/wiki) optimization procedure.
 The alarm system is evaluated on running, i.e. incomplete instances over different configurations of the cost model.
 
+<!---
 ## Reference
 If you use the code from this repository, please cite the original paper:
 ```
@@ -21,6 +22,7 @@ If you use the code from this repository, please cite the original paper:
   year={2018}
 }
 ```
+--->
 
 ## Requirements   
 The code is written in Python 3.6. Although not tested, it should work with any version of Python 3. Additionally, the following Python libraries are required to run the code: 
