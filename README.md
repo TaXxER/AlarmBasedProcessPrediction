@@ -1,4 +1,4 @@
-Following is the supplementary material for the article "Foundations of Prescriptive Process Monitoring" by [Irene Teinemaa](https://scholar.google.nl/citations?user=UQZ22uQAAAAJ&hl=en&oi=ao), [Niek Tax](https://scholar.google.com.au/citations?user=XkRvCC4AAAAJ&hl=en&oi=ao), [Massimiliano de Leoni](http://www.win.tue.nl/~mdeleoni/), [Marlon Dumas](http://kodu.ut.ee/~dumas/), and [Fabrizio Maria Maggi](https://scholar.google.nl/citations?user=Jo9fNKEAAAAJ&hl=en&oi=sra), which is currently under submission at the [16th International Conference on Business Process Management](http://bpm2018.web.cse.unsw.edu.au/)
+Following is the supplementary material for the article "[Foundations of Prescriptive Process Monitoring](https://arxiv.org/abs/1803.08706)" by [Irene Teinemaa](https://scholar.google.nl/citations?user=UQZ22uQAAAAJ&hl=en&oi=ao), [Niek Tax](https://scholar.google.com.au/citations?user=XkRvCC4AAAAJ&hl=en&oi=ao), [Massimiliano de Leoni](http://www.win.tue.nl/~mdeleoni/), [Marlon Dumas](http://kodu.ut.ee/~dumas/), and [Fabrizio Maria Maggi](https://scholar.google.nl/citations?user=Jo9fNKEAAAAJ&hl=en&oi=sra), which is currently under submission at the [16th International Conference on Business Process Management](http://bpm2018.web.cse.unsw.edu.au/)
 
 The code provided in this repository implements the techniques for alarm-based prescriptive process monitoring.
  Furthermore, the repository provides an implementation of the experimental setus and can be used to investigate:
@@ -11,18 +11,17 @@ An alarm-based prescriptive process monitoring (short: alarm system) entails two
 The scripts in this repository train either a [Random Forest (RF)](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html) or a [Gradient Boosted Trees (GBT)](http://lightgbm.readthedocs.io/en/latest/Python-API.html) classifier using the data about historical, i.e. completed process instances. Then, as a particular instantiation of the alarming mechanism, an optimal alarming threshold is found using the Tree-structured Parzen Estimator (TPE) [(link)](https://github.com/hyperopt/hyperopt/wiki) optimization procedure.
 The alarm system is evaluated on running, i.e. incomplete instances over different configurations of the cost model.
 
-<!---
+
 ## Reference
 If you use the code from this repository, please cite the original paper:
 ```
 @article{Teinemaa2018,
   title={Foundations of Prescriptive Process Monitoring },
   author={Teinemaa, Irene and Tax, Niek and de Leoni, Massimiliano and Dumas, Marlon and Maggi, Fabrizio Maria},
-  journal={arXiv},
+  journal={arXiv preprint arXiv:1803.08706},
   year={2018}
 }
 ```
---->
 
 ## Requirements   
 The code is written in Python 3.6. Although not tested, it should work with any version of Python 3. Additionally, the following Python libraries are required to run the code: 
