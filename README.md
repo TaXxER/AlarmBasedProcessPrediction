@@ -1,4 +1,4 @@
-Following is the supplementary material for the article "[Foundations of Prescriptive Process Monitoring](https://arxiv.org/abs/1803.08706)" by [Irene Teinemaa](https://scholar.google.nl/citations?user=UQZ22uQAAAAJ&hl=en&oi=ao), [Niek Tax](https://scholar.google.com.au/citations?user=XkRvCC4AAAAJ&hl=en&oi=ao), [Massimiliano de Leoni](http://www.win.tue.nl/~mdeleoni/), [Marlon Dumas](http://kodu.ut.ee/~dumas/), and [Fabrizio Maria Maggi](https://scholar.google.nl/citations?user=Jo9fNKEAAAAJ&hl=en&oi=sra), which is currently under submission at the [16th International Conference on Business Process Management](http://bpm2018.web.cse.unsw.edu.au/)
+Following is the supplementary material for the article "[Alarm-Based Prescriptive Process Monitoring](https://arxiv.org/abs/1803.08706)" by [Irene Teinemaa](https://scholar.google.nl/citations?user=UQZ22uQAAAAJ&hl=en&oi=ao), [Niek Tax](https://scholar.google.com.au/citations?user=XkRvCC4AAAAJ&hl=en&oi=ao), [Massimiliano de Leoni](http://www.win.tue.nl/~mdeleoni/), [Marlon Dumas](http://kodu.ut.ee/~dumas/), and [Fabrizio Maria Maggi](https://scholar.google.nl/citations?user=Jo9fNKEAAAAJ&hl=en&oi=sra), which is accepted at the BPM Forum 2018 (see [16th International Conference on Business Process Management](http://bpm2018.web.cse.unsw.edu.au/)).
 
 The code provided in this repository implements the techniques for alarm-based prescriptive process monitoring.
  Furthermore, the repository provides an implementation of the experimental setus and can be used to investigate:
@@ -16,7 +16,7 @@ The alarm system is evaluated on running, i.e. incomplete instances over differe
 If you use the code from this repository, please cite the original paper:
 ```
 @article{Teinemaa2018,
-  title={Foundations of Prescriptive Process Monitoring },
+  title={Alarm-Based Prescriptive Process Monitoring},
   author={Teinemaa, Irene and Tax, Niek and de Leoni, Massimiliano and Dumas, Marlon and Maggi, Fabrizio Maria},
   journal={arXiv preprint arXiv:1803.08706},
   year={2018}
